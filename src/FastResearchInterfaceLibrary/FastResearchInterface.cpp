@@ -39,7 +39,7 @@
 //! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n
 //! See the License for the specific language governing permissions and\n
 //! limitations under the License.\n
-//! 
+//!
 //  ----------------------------------------------------------
 //   For a convenient reading of this file's source code,
 //   please use a tab width of four characters.
@@ -119,7 +119,7 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 	this->TimerFlag							=	false;
 	this->NewDataFromKRCReceived			=	false;
 	this->LoggingIsActive					=	false;
-	this->ThreadCreated						=	false;	
+	this->ThreadCreated						=	false;
 
 	this->LoggingState						=	FastResearchInterface::WriteLoggingDataFileCalled;
 
@@ -176,13 +176,13 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 	// i.e. we have to set our own scheduling parameters
 	this->MainThread = pthread_self();
 	pthread_setschedparam(this->MainThread, SCHED_FIFO, &SchedulingParamsMainThread);
-	
+
 #if defined(WIN32) || defined(WIN64) || defined(_WIN64)
 
 	if(!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS))
 	{
 		this->OutputConsole->printf("FastResearchInterface::FastResearchInterface(): ERROR, could not set process priority.\n");
-	} 
+	}
 
 #endif
 
@@ -193,8 +193,8 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 										,	&AttributesTimerThread
 										,	&TimerThreadMain
 										,	this);
-										
-								
+
+
 
 	if (FuntionResult != EOK)
 	{
@@ -203,7 +203,7 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 		exit(EXIT_FAILURE); // terminates the process
 	}
 
-	pthread_mutex_lock(&(this->MutexForThreadCreation));	
+	pthread_mutex_lock(&(this->MutexForThreadCreation));
 
 	while (!ThreadCreated)
 	{
@@ -211,9 +211,9 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 	}
 
 	ThreadCreated	=	false;
-	pthread_mutex_unlock(&(this->MutexForThreadCreation));	
+	pthread_mutex_unlock(&(this->MutexForThreadCreation));
 
-#endif		
+#endif
 
 	FuntionResult	=	pthread_create(		&KRCCommunicationThread
 										,	&AttributesKRCCommunicationThread
@@ -254,7 +254,6 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 		sprintf(this->LoggingFileName, "FRI.dat\0");
 	}
 
-	this->DataLogger	=	new DataLogging(	this->RobotName
 #ifdef LOGGER_VER2
 	if ((strlen(this->LoggingStrategy) == 0) || !stricmp(this->LoggingStrategy, "Standard")) {
 		sprintf(this->LoggingStrategy, "Standard");
@@ -369,7 +368,7 @@ FastResearchInterface::~FastResearchInterface(void)
 	pthread_mutex_unlock(&(this->MutexForCondVarForTimer));
 	pthread_join(this->TimerThread, NULL);
 
-#endif	
+#endif
 
 	if (this->LoggingState
 			!= FastResearchInterface::WriteLoggingDataFileCalled) {
@@ -405,4 +404,3 @@ int FastResearchInterface::printf(const char* Format,...)
 
 	return(Result);
 }
-

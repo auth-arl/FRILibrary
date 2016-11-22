@@ -20,12 +20,12 @@
 //! License, or (at your option) any later version.
 //! \n\n
 //! The Fast Research Interface Library is distributed in the hope that it
-//! will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+//! will be useful, but WITHOUT ANY WARRANTY; without even the implied
 //! warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 //! the GNU General Public License for more details.
 //! \n\n
 //! You should have received a copy of the GNU General Public License
-//! along with the Fast Research Interface Library. If not, see 
+//! along with the Fast Research Interface Library. If not, see
 //! http://www.gnu.org/licenses.
 //! \n
 //! \n
@@ -61,7 +61,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <friComm.h>
+#include <FRICommunication.h>
 #include <DataLogging.h>
 
 
@@ -282,8 +282,8 @@ public:
 	//!
 	//! \sa Class DataLogging
 	//  ----------------------------------------------------------
-	void AddEntry(		const tFriMsrData		&ReceivedFRIData
-			,	const tFriCmdData		&SentFRIData		);
+	void AddEntry(		const FRIDataReceivedFromKRC		&ReceivedFRIData
+			,	const FRIDataSendToKRC		&SentFRIData		);
 
 	//  ---------------------- Doxygen info ----------------------
 	//! \fn int WriteToFile(void)

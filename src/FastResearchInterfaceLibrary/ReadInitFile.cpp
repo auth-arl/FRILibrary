@@ -39,7 +39,7 @@
 //! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n
 //! See the License for the specific language governing permissions and\n
 //! limitations under the License.\n
-//! 
+//!
 //  ----------------------------------------------------------
 //   For a convenient reading of this file's source code,
 //   please use a tab width of four characters.
@@ -129,6 +129,13 @@ int FastResearchInterface::ReadInitFile(const char *InitFileName)
 			   		strcpy(this->LoggingFileName, InitFileParser.GetValue() );
 					ParameterCount++;
 				}
+				#ifdef LOGGER_VER2
+				if ( !stricmp (InitFileParser.GetName(), "LoggingStrategy") )
+				{
+        	strcpy(this->LoggingStrategy, InitFileParser.GetValue() );
+					ParameterCount++;
+				}
+				#endif
 			}
 		}
 	}
@@ -140,4 +147,3 @@ int FastResearchInterface::ReadInitFile(const char *InitFileName)
 	return(ParameterCount);
 
 }
-

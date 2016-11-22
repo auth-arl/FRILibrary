@@ -21,12 +21,12 @@
 //! License, or (at your option) any later version.
 //! \n\n
 //! The Fast Research Interface Library is distributed in the hope that it
-//! will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+//! will be useful, but WITHOUT ANY WARRANTY; without even the implied
 //! warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 //! the GNU General Public License for more details.
 //! \n\n
 //! You should have received a copy of the GNU General Public License
-//! along with the Fast Research Interface Library. If not, see 
+//! along with the Fast Research Interface Library. If not, see
 //! http://www.gnu.org/licenses.
 //! \n
 //! \n
@@ -55,7 +55,6 @@
 
 
 #include <DataLogging2.h>
-#include "DataLogging.cpp"
 #include <FastResearchInterface.h>
 #include <InitializationFileEntry.h>
 #include <algorithm>
@@ -67,11 +66,27 @@
 #include <errno.h>
 #include <string.h>
 
+#define NUMBER_OF_ELEMENTS_PER_ENTRY	58
+#define OUTPUT_FILE_STRING_LENGTH		1024
+#define TIME_STRING_LENGTH				128
+
+#ifndef PI
+#define PI			3.1415926535897932384626433832795
+#endif
+
+#ifndef RAD
+#define RAD(A)	((A) * PI / 180.0 )
+#endif
+
+#ifndef DEG
+#define DEG(A)	((A) * 180.0 / PI )
+#endif
+
 #define FIELD_DATA_TYPE_GROUPS_COUNT	7
 #define MAX_FIELDS_GROUP_MEMBERS_COUNT	20
 
 // ****************************************************************
-// Constructor 
+// Constructor
 //
 DataLogging2::DataLogging2(	const char				*RobotName
 		,	const char				*LoggingPath
@@ -114,7 +129,7 @@ DataLogging2::DataLogging2(	const char				*RobotName
 				"Cmd-Head", 		"DatagramId",					"cmd.datagramId",
 				"Cmd-Command", 		"RelevantCommandedFlags",		"cmd.cmdFlags",
 
-				//FRI_USER_SIZE SIZED ATTRIBUTES
+				//SIZE_USER_DATA SIZED ATTRIBUTES
 				"Msr-KRL",			"RealData",						"msr.realData",
 				"Msr-KRL",			"IntegerData",					"msr.intData",
 				"Msr-KRL",			"BooleanData",					"msr.boolData",
@@ -122,7 +137,7 @@ DataLogging2::DataLogging2(	const char				*RobotName
 				"Cmd-KRL",			"IntegerData",					"cmd.intData",
 				"Cmd-KRL",			"BooleanData",					"cmd.boolData",
 
-				//LBR_MNJ SIZED ATTRIBUTES
+				//NUMBER_OF_JOINTS SIZED ATTRIBUTES
 				"Msr-Robot", 		"DriveTemperature",				"msr.temperature",
 				"Msr-Data",			"MeasuredJointPosition",		"msr.msrJntPos",
 				"Msr-Data",			"CommandedJointPosition",		"msr.cmdJntPos",
@@ -135,22 +150,22 @@ DataLogging2::DataLogging2(	const char				*RobotName
 				"Cmd-Command", 		"JointStiffness",				"cmd.jntStiffness",
 				"Cmd-Command", 		"JointDamping",					"cmd.jntDamping",
 
-				//FRI_CART_FRM_DIM SIZED ATTRIBUTES
+				//NUMBER_OF_FRAME_ELEMENTS SIZED ATTRIBUTES
 				"Msr-Data",			"MeasuredCartesianPosition",	"msr.msrCartPos",
 				"Msr-Data",			"CommandedCartesianPosition",	"msr.cmdCartPos",
 				"Msr-Data",			"CommandedCartesianOffset",		"msr.cmdCartPosFriOffset",
 				"Cmd-Command", 		"CartesianPosition",			"cmd.cartPos",
 
-				//FRI_CART_VEC SIZED ATTRIBUTES
+				//NUMBER_OF_CART_DOFS SIZED ATTRIBUTES
 				"Msr-Data",			"EstimatedTCPForce",			"msr.estExtTcpFT",
 				"Cmd-Command", 		"AdditionalTCPForce",			"cmd.addTcpFT",
 				"Cmd-Command", 		"CartesianStiffness",			"cmd.cartStiffness",
 				"Cmd-Command", 		"CartesianDamping",				"cmd.cartDamping",
 
-				//FRI_CART_VEC*LBR_MNJ SIZED ATTRIBUTES
+				//NUMBER_OF_CART_DOFS*NUMBER_OF_JOINTS SIZED ATTRIBUTES
 				"Msr-Data",			"JacobianMatrix",				"msr.jacobian",
 
-				//LBR_MNJ*LBR_MNJ SIZED ATTRIBUTES
+				//NUMBER_OF_JOINTS*NUMBER_OF_JOINTS SIZED ATTRIBUTES
 				"Msr-Data",			"MassMatrix",					"msr.massMatrix",
 
 				//NOT FOUND!!
@@ -182,33 +197,33 @@ DataLogging2::DataLogging2(	const char				*RobotName
 				1,
 				1,
 				1,
-				FRI_USER_SIZE,
-				FRI_USER_SIZE,
-				FRI_USER_SIZE,
-				FRI_USER_SIZE,
-				FRI_USER_SIZE,
-				FRI_USER_SIZE,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				LBR_MNJ,
-				FRI_CART_FRM_DIM,
-				FRI_CART_FRM_DIM,
-				FRI_CART_FRM_DIM,
-				FRI_CART_FRM_DIM,
-				FRI_CART_VEC,
-				FRI_CART_VEC,
-				FRI_CART_VEC,
-				FRI_CART_VEC,
-				FRI_CART_VEC*LBR_MNJ,
-				LBR_MNJ*LBR_MNJ,
+				SIZE_USER_DATA,
+				SIZE_USER_DATA,
+				SIZE_USER_DATA,
+				SIZE_USER_DATA,
+				SIZE_USER_DATA,
+				SIZE_USER_DATA,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS,
+				NUMBER_OF_FRAME_ELEMENTS,
+				NUMBER_OF_FRAME_ELEMENTS,
+				NUMBER_OF_FRAME_ELEMENTS,
+				NUMBER_OF_FRAME_ELEMENTS,
+				NUMBER_OF_CART_DOFS,
+				NUMBER_OF_CART_DOFS,
+				NUMBER_OF_CART_DOFS,
+				NUMBER_OF_CART_DOFS,
+				NUMBER_OF_CART_DOFS*NUMBER_OF_JOINTS,
+				NUMBER_OF_JOINTS*NUMBER_OF_JOINTS,
 				0
 		};
 
@@ -397,8 +412,8 @@ int DataLogging2::PrepareLogging(	const unsigned int	&ControlScheme
 // ****************************************************************
 // AddEntry()
 //
-void DataLogging2::AddEntry(		const tFriMsrData		&ReceivedFRIData
-								,	const tFriCmdData		&SentFRIData		)
+void DataLogging2::AddEntry(		const FRIDataReceivedFromKRC		&ReceivedFRIData
+								,	const FRIDataSendToKRC		&SentFRIData		)
 {
 	if (!stricmp((const char*)this->LoggingStrategy, "Standard"))
 		this->DataLogging::AddEntry(ReceivedFRIData, SentFRIData);
@@ -417,57 +432,57 @@ void DataLogging2::AddEntry(		const tFriMsrData		&ReceivedFRIData
 					index = this->FieldGroupsIndexes[i][j];
 					for (int k=0; k < this->FieldLengths[index]; k++){
 						switch (index){
-						case 0: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.head.sendSeqCount; break;
-						case 1: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.head.reflSeqCount; break;
-						case 2: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.head.packetSize; break;
-						case 3: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.head.datagramId; break;
-						case 4: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.timestamp; break;
-						case 5: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.state; break;
-						case 6: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.quality; break;
-						case 7: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.desiredMsrSampleTime; break;
-						case 8: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.desiredCmdSampleTime; break;
-						case 9: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.safetyLimits; break;
-						case 10: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.stat.answerRate; break;
-						case 11: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.stat.latency; break;
-						case 12: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.stat.jitter; break;
-						case 13: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.stat.missRate; break;
-						case 14: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.intf.stat.missCounter; break;
-						case 15: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.robot.power; break;
-						case 16: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.robot.control; break;
-						case 17: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.robot.error; break;
-						case 18: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.robot.warning; break;
-						case 19: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.head.sendSeqCount; break;
-						case 20: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.head.reflSeqCount; break;
-						case 21: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.head.packetSize; break;
-						case 22: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.head.datagramId; break;
-						case 23: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.cmdFlags; break;
-						case 24: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.krl.realData[k]; break;
-						case 25: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.krl.intData[k]; break;
+						case 0: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Header.FRISequenceCounterForUDPPackages; break;
+						case 1: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Header.FRIReflectedSequenceCounterForUDPPackages; break;
+						case 2: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Header.FRIPackageSizeInBytes; break;
+						case 3: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Header.FRIDatagramID; break;
+						case 4: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRITimeStamp; break;
+						case 5: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIState; break;
+						case 6: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIQuality; break;
+						case 7: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRISampleTimePeriodForDataSentFromKRC; break;
+						case 8: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRISampleTimePeriodForDataSentToKRC; break;
+						case 9: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRICommunicationTimeLimitsForSafety; break;
+						case 10: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIStatistics.AverageRateOfAnsweredPackages; break;
+						case 11: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIStatistics.AverageLatencyInSeconds; break;
+						case 12: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIStatistics.AverageJitterInSeconds; break;
+						case 13: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIStatistics.AverageRateOfMissedPackages; break;
+						case 14: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.InterfaceState.FRIStatistics.AbsoluteNumberOfMissedPackages; break;
+						case 15: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Robot.FRIRobotPower; break;
+						case 16: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Robot.FRIRobotControl; break;
+						case 17: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Robot.FRIDriveError; break;
+						case 18: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Robot.FRIDriveWarning; break;
+						case 19: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.Header.FRISequenceCounterForUDPPackages; break;
+						case 20: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.Header.FRIReflectedSequenceCounterForUDPPackages; break;
+						case 21: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.Header.FRIPackageSizeInBytes; break;
+						case 22: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.Header.FRIDatagramID; break;
+						case 23: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRIRobotCommandDataFlags; break;
+						case 24: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.SharedKRLVariables.FRIFloatingPointValuesInKRC[k]; break;
+						case 25: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.SharedKRLVariables.FRIIntegerValuesInKRC[k]; break;
 						//case 26: FieldDescription = "msr.boolData"; break;
-						case 27: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.krl.realData[k]; break;
-						case 28: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.krl.intData[k]; break;
+						case 27: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.SharedKRLVariables.FRIFloatingPointValuesInKRC[k]; break;
+						case 28: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.SharedKRLVariables.FRIIntegerValuesInKRC[k]; break;
 						//case 29: FieldDescription = "cmd.boolData"; break;
-						case 30: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.robot.temperature[k]; break;
-						case 31: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.msrJntPos[k]; break;
-						case 32: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.cmdJntPos[k]; break;
-						case 33: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.cmdCartPosFriOffset[k]; break;
-						case 34: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.msrJntTrq[k]; break;
-						case 35: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.estExtJntTrq[k]; break;
-						case 36: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.gravity[k]; break;
-						case 37: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.jntPos[k]; break;
-						case 38: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.addJntTrq[k]; break;
-						case 39: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.jntStiffness[k]; break;
-						case 40: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.jntDamping[k]; break;
-						case 41: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.msrCartPos[k]; break;
-						case 42: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.cmdCartPos[k]; break;
-						case 43: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.cmdCartPosFriOffset[k]; break;
-						case 44: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.cartPos[k]; break;
-						case 45: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.estExtTcpFT[k]; break;
-						case 46: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.addTcpFT[k]; break;
-						case 47: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.cartStiffness[k]; break;
-						case 48: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.cmd.cartDamping[k]; break;
-						case 49: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.jacobian[k]; break;
-						case 50: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.data.massMatrix[k]; break;
+						case 30: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.Robot.FRIDriveTemperature[k]; break;
+						case 31: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIMeasuredJointPositionVectorInRad[k]; break;
+						case 32: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRICommandedJointPostionVectorFromKRC[k]; break;
+						case 33: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRICommandedJointPostionOffsetVectorFromKRC[k]; break;
+						case 34: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIMeasuredJointTorqueVectorInNm[k]; break;
+						case 35: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIEstimatedExternalJointTorqueVectorInNm[k]; break;
+						case 36: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIGravityVectorInJointSpace[k]; break;
+						case 37: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedJointPositionVectorInRad[k]; break;
+						case 38: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedAdditionalJointTorqueVectorInNm[k]; break;
+						case 39: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedJointStiffnessVectorInNmPerRad[k]; break;
+						case 40: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedNormalizedJointDampingVector[k]; break;
+						case 41: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIMeasuredCartesianFrame[k]; break;
+						case 42: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRICommandedCartesianFrameFromKRC[k]; break;
+						case 43: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRICommandedCartesianFrameOffsetFromKRC[k]; break;
+						case 44: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedCartesianFrame[k]; break;
+						case 45: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIEstimatedCartesianForcesAndTorques[k]; break;
+						case 46: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedAdditionalCartesianForceTorqueVector[k]; break;
+						case 47: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedCartesianStiffnessVector[k]; break;
+						case 48: this->LoggingMemory[lmcpos][lmpos] = SentFRIData.CommandValues.FRICommandedNormalizedCartesianDampingVector[k]; break;
+						case 49: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIJacobianMatrix[k]; break;
+						case 50: this->LoggingMemory[lmcpos][lmpos] = ReceivedFRIData.MeasuredData.FRIMassMatrix[k]; break;
 						}
 						lmcpos++;
 					}
@@ -527,16 +542,16 @@ int DataLogging2::WriteToFile(void)
 		switch (this->CurrentControlScheme)
 		{
 		case FastResearchInterface::JOINT_POSITION_CONTROL:
-			ElementsPerLine	=	2 + 4 * LBR_MNJ;
+			ElementsPerLine	=	2 + 4 * NUMBER_OF_JOINTS;
 			break;
 		case FastResearchInterface::CART_IMPEDANCE_CONTROL:
-			ElementsPerLine	=	2 + 3 * FRI_CART_VEC;
+			ElementsPerLine	=	2 + 3 * NUMBER_OF_CART_DOFS;
 			break;
 		case FastResearchInterface::JOINT_IMPEDANCE_CONTROL:
-			ElementsPerLine	=	2 + 8 * LBR_MNJ;
+			ElementsPerLine	=	2 + 8 * NUMBER_OF_JOINTS;
 			break;
 		case FastResearchInterface::JOINT_TORQUE_CONTROL:
-			ElementsPerLine	=	2 + 3 * LBR_MNJ;
+			ElementsPerLine	=	2 + 3 * NUMBER_OF_JOINTS;
 			break;
 		default:
 			return(EINVAL);
@@ -642,17 +657,16 @@ void DataLogging2::WriteFieldsDescription(FILE* OutputFile){
 						fprintf(OutputFile, "%s[%d]\t", this->Fields[DescriptionIndex], k);
 					break;
 				case 5:
-					for (int k=0; k<FRI_CART_VEC; k++)
-						for (int l=0; l<LBR_MNJ; l++)
+					for (int k=0; k<NUMBER_OF_CART_DOFS; k++)
+						for (int l=0; l<NUMBER_OF_JOINTS; l++)
 							fprintf(OutputFile, "%s[%d][%d]\t", this->Fields[DescriptionIndex], k, l);
 					break;
 				case 6:
-					for (int k=0; k<LBR_MNJ; k++)
-						for (int l=0; l<LBR_MNJ; l++)
+					for (int k=0; k<NUMBER_OF_JOINTS; k++)
+						for (int l=0; l<NUMBER_OF_JOINTS; l++)
 							fprintf(OutputFile, "%s[%d][%d]\t", this->Fields[DescriptionIndex], k, l);
 					break;
 				}
 			}
 	fprintf(OutputFile, "\n");
 }
-
