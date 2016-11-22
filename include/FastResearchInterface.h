@@ -48,10 +48,17 @@
 #ifndef __FastResearchInterface__
 #define __FastResearchInterface__
 
+#define LOGGER_VER2
 
 #include <Console.h>
+
+#ifdef LOGGER_VER2
+#include <DataLogging2.h>
+#else
 #include <DataLogging.h>
-#include <FRICommunication.h>
+#endif
+
+#include <friComm.h>
 #include <pthread.h>
 
 

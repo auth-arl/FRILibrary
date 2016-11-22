@@ -58,6 +58,7 @@
 #include <OSAbstraction.h>
 
 
+#include <iostream> //<- for cout
 
 #define MAX_ROBOT_NAME_LENGTH				256
 #define MAX_OUTPUT_PATH_LENGTH				256
@@ -84,6 +85,11 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 	this->LoggingPath			=	new char[MAX_OUTPUT_PATH_LENGTH];
 	this->LoggingFileName		=	new char[MAX_FILE_NAME_LENGTH];
 	this->RobotStateString		=	new char[SIZE_OF_ROBOT_STATE_STRING];
+#ifdef LOGGER_VER2
+	this->LoggingStrategy = new char[MAX_OUTPUT_PATH_LENGTH];
+	memset((void*) (this->LoggingStrategy), 0x0,
+			MAX_OUTPUT_PATH_LENGTH * sizeof(char));
+#endif
 
 	memset((void*)(this->RobotName)				, 0x0	, MAX_ROBOT_NAME_LENGTH			* sizeof(char));
 	memset((void*)(this->LoggingPath)			, 0x0	, MAX_OUTPUT_PATH_LENGTH		* sizeof(char));
@@ -249,11 +255,37 @@ FastResearchInterface::FastResearchInterface(const char *InitFileName)
 	}
 
 	this->DataLogger	=	new DataLogging(	this->RobotName
+#ifdef LOGGER_VER2
+	if ((strlen(this->LoggingStrategy) == 0) || !stricmp(this->LoggingStrategy, "Standard")) {
+		sprintf(this->LoggingStrategy, "Standard");
+	}
+/*	else {
+		if (strlen(this->LoggingStrategy) > 0) {
+			if (strcmp(&(this->LoggingStrategy[strlen(this->LoggingStrategy) - 1]),
+					OS_FOLDER_SEPARATOR) != 0) {
+				strcat(this->LoggingStrategy, OS_FOLDER_SEPARATOR);
+			}
+		} else {
+			sprintf(this->LoggingStrategy, ".%s\0", OS_FOLDER_SEPARATOR);
+		}
+
+	}*/
+
+	std::cout << "Logging strategy: " << this->LoggingStrategy << "\n";
+
+	this->DataLogger = new DataLogging2(		this->RobotName
 											,	this->LoggingPath
 											,	this->LoggingFileName
-											,	this->NumberOfLoggingFileEntries);
-}
+											,	this->NumberOfLoggingFileEntries
+											,	this->LoggingStrategy);
+#else
+	this->DataLogger = new DataLogging(		this->RobotName
+										,	this->LoggingPath
+										,	this->LoggingFileName
+										,	this->NumberOfLoggingFileEntries);
+#endif
 
+}
 
 // ****************************************************************
 // Destructor
@@ -336,20 +368,23 @@ FastResearchInterface::~FastResearchInterface(void)
 	this->TimerThreadIsRunning = false;
 	pthread_mutex_unlock(&(this->MutexForCondVarForTimer));
 	pthread_join(this->TimerThread, NULL);
-	
+
 #endif	
 
-	if (this->LoggingState != FastResearchInterface::WriteLoggingDataFileCalled)
-	{
+	if (this->LoggingState
+			!= FastResearchInterface::WriteLoggingDataFileCalled) {
 		this->WriteLoggingDataFile();
 	}
 
-	delete[]	this->RobotName			;
-	delete[]	this->LoggingPath		;
-	delete[]	this->LoggingFileName	;
-	delete[]	this->RobotStateString	;
-	delete		this->DataLogger		;
-	delete		this->OutputConsole		;
+	delete[] this->RobotName;
+	delete[] this->LoggingPath;
+	delete[] this->LoggingFileName;
+	delete[] this->RobotStateString;
+#ifdef LOGGER_VER2
+	delete[] this->LoggingStrategy;
+#endif
+	delete this->DataLogger;
+	delete this->OutputConsole;
 }
 
 

@@ -1,0 +1,4 @@
+*.o
+*.a
+Linux/x64
+Linux/x86
