@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+path() {
+    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+
+sed -i '/The path for FRILibrary/d' ~/.bashrc
+
+SCRIPT_DIR=`path $0`
+FRIL_PATH=`dirname $SCRIPT_DIR`
+
 cd Linux
 mkdir -p x64/debug/bin
 mkdir -p x64/release/bin
@@ -14,4 +23,12 @@ mkdir -p x86/release/lib
 mkdir -p x86/debug/obj
 mkdir -p x86/release/obj
 make clean all
+
+if [ $? -eq 0 ]; then
+  echo "export FRIL_PATH=$FRIL_PATH  # The path for FRILibrary" >> ~/.bashrc
+  echo "FRIL library successfully installed. Please source your bashrc file."
+else
+    echo "FRIL library failed to be built installed."
+fi
+
 cd ..
