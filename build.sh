@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Install dependencies
+sudo apt-get update
+sudo apt-get install -y gcc-multilib g++-multilib
+
 path() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
@@ -27,8 +31,10 @@ make clean all
 if [ $? -eq 0 ]; then
   echo "export FRIL_PATH=$FRIL_PATH  # The path for FRILibrary" >> ~/.bashrc
   echo "FRIL library successfully installed. Please source your bashrc file."
+  cd ..
 else
-    echo "FRIL library failed to be built installed."
+  echo "FRIL library failed to be built installed."
+  cd ..
+  exit 1
 fi
 
-cd ..
