@@ -10,18 +10,23 @@ Dependecies
 
 Manual Build
 -------------------------
-1.  Install gcc-multilib && g++-multilib
+1.  Install gcc-multilib && g++-multilib dependencies
 
     ```bash
     sudo apt-get install -y gcc-multilib g++-multilib
     ```
-2. Build library
+2.  Install armadillo dependencies
+
+    ```bash
+    sudo apt-get install -y libarmadillo4 libarmadillo-dev
+    ```    
+3. Build library
 
     ```bash
     cd Linux
     make clean all
     ```
-3. Add FRIL_PATH (repository root) to your ~/.bashrc
+4. Add FRIL_PATH (repository root) to your ~/.bashrc
 
 
 Automatic Build

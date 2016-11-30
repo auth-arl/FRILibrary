@@ -2,7 +2,7 @@
 
 # Install dependencies
 sudo apt-get update
-sudo apt-get install -y gcc-multilib g++-multilib
+sudo apt-get install -y gcc-multilib g++-multilib libarmadillo4 libarmadillo-dev
 
 path() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
